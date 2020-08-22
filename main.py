@@ -7,11 +7,11 @@ from flask import Flask, request
 from google.cloud import storage
 
 CF_API_ENDPOINT = "https://api.cloudflare.com/client/v4"
-CF_API_EMAIL = os.environ["CLOUDFLARE_API_EMAIL"]
-CF_API_KEY = os.environ["CLOUDFLARE_API_EMAIL"]
+CF_API_EMAIL = os.environ["CF_API_EMAIL"]
+CF_API_TOKEN = os.environ["CF_API_TOKEN"]
 
-CF_KV_NAMESPACE_ID = os.environ["CLOUDFLARE_KV_NAMESPACE_ID"]
-CF_ACCOUNT_ID = os.environ["CLOUDFLARE_ACCOUNT_ID"]
+CF_KV_NAMESPACE_ID = os.environ["CF_KV_NAMESPACE_ID"]
+CF_ACCOUNT_ID = os.environ["CF_ACCOUNT_ID"]
 
 app = Flask(__name__)
 
@@ -74,7 +74,7 @@ def upload_to_kv(data):
     kv_metadata = build_kv_metadata(data["name"])
 
     url = f"{CF_API_ENDPOINT}/accounts/{CF_ACCOUNT_ID}/storage/kv/namespaces/{CF_KV_NAMESPACE_ID}/values/{kv_key}"
-    headers = {"X-Auth-Email": CF_API_EMAIL, "X-Auth-Key": CF_API_KEY}
+    headers = {"Authorization": f"Bearer {CF_API_TOKEN}"}
     payload = {"value": kv_value, "metadata": json.dumps(kv_metadata)}
 
     # upload to kv
