@@ -2,14 +2,16 @@ import json
 import sys
 import base64
 import os
+import requests
 from flask import Flask, request
 from google.cloud import storage
 
+CF_API_ENDPOINT = "https://api.cloudflare.com/client/v4"
+CF_API_EMAIL = os.environ["CLOUDFLARE_API_EMAIL"]
+CF_API_KEY = os.environ["CLOUDFLARE_API_EMAIL"]
 
-CLOUDFLARE_KV_NAMESPACE_ID = os.environ['CLOUDFLARE_KV_NAMESPACE_ID']
-CLOUDFLARE_ACCOUNT_ID = os.environ['CLOUDFLARE_ACCOUNT_ID']
-CLOUDFLARE_API_EMAIL = os.environ['CLOUDFLARE_API_EMAIL']
-CLOUDFLARE_API_KEY = os.environ['CLOUDFLARE_API_EMAIL']
+CF_KV_NAMESPACE_ID = os.environ["CLOUDFLARE_KV_NAMESPACE_ID"]
+CF_ACCOUNT_ID = os.environ["CLOUDFLARE_ACCOUNT_ID"]
 
 app = Flask(__name__)
 
@@ -64,27 +66,26 @@ def index():
 def upload_to_kv(data):
     storage_client = storage.Client()
     bucket = storage_client.get_bucket(data["bucket"])
-    print(data)
-    pass
-
-
-def update_object_metadata(data):
-    storage_client = storage.Client()
-    bucket = storage_client.get_bucket(data["bucket"])
     blob = bucket.get_blob(data["name"])
-    cache_control = get_cache_control(data["name"])
 
-    if isinstance(blob.cache_control, str) and blob.cache_control == cache_control:
-        print(f"Object has correct cache-control: {data['name']}")
-        return
+    # build kv req
+    kv_key = f"{data['bucket']}/{data['name']}"
+    kv_value = blob.download_as_string()
+    kv_metadata = build_kv_metadata(data["name"])
 
-    if not blob.exists():
-        print(f"Object does not exist: {data['name']}")
-        return
+    url = f"{CF_API_ENDPOINT}/accounts/{CF_ACCOUNT_ID}/storage/kv/namespaces/{CF_KV_NAMESPACE_ID}/values/{kv_key}"
+    headers = {"X-Auth-Email": CF_API_EMAIL, "X-Auth-Key": CF_API_KEY}
+    payload = {"value": kv_value, "metadata": json.dumps(kv_metadata)}
 
-    blob.cache_control = cache_control
-    blob.patch()
-    print(f"Successfully updated object: {data['name']}")
+    # upload to kv
+    response = requests.put(url, headers=headers, files=payload)
+    response.raise_for_status()
+    response_body = response.json()
+    print(f"CF API response: {response_body}")
+
+
+def build_kv_metadata(object_name):
+    return {"cacheControl": get_cache_control(object_name)}
 
 
 def get_cache_control(object_name):
