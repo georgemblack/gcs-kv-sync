@@ -1,8 +1,15 @@
 import json
 import sys
 import base64
+import os
 from flask import Flask, request
 from google.cloud import storage
+
+
+CLOUDFLARE_KV_NAMESPACE_ID = os.environ['CLOUDFLARE_KV_NAMESPACE_ID']
+CLOUDFLARE_ACCOUNT_ID = os.environ['CLOUDFLARE_ACCOUNT_ID']
+CLOUDFLARE_API_EMAIL = os.environ['CLOUDFLARE_API_EMAIL']
+CLOUDFLARE_API_KEY = os.environ['CLOUDFLARE_API_EMAIL']
 
 app = Flask(__name__)
 
@@ -51,13 +58,10 @@ def index():
         print(f"Error: {e}")
         return ("", 500)
 
-    return ("Metadata updated", 200)
+    return ("Uploaded to Workers KV", 200)
 
 
 def upload_to_kv(data):
-    storage_client = storage.Client()
-    bucket = storage_client.get_bucket(data["bucket"])
-    print("Uploading to KV...")
     print(data)
     pass
 
