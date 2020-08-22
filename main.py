@@ -62,6 +62,8 @@ def index():
 
 
 def upload_to_kv(data):
+    storage_client = storage.Client()
+    bucket = storage_client.get_bucket(data["bucket"])
     print(data)
     pass
 
