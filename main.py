@@ -117,10 +117,12 @@ def upload_to_kv(data):
 
 
 def build_kv_metadata(object_name):
-    return {
+    metadata = {
         "cacheControl": get_cache_control(object_name),
         "mimeType": get_mime_type(object_name),
     }
+    print(f"Metadata for {object_name}: {metadata}")
+    return metadata
 
 
 def get_cache_control(object_name):
