@@ -13,6 +13,38 @@ CF_API_TOKEN = os.environ["CF_API_TOKEN"]
 CF_KV_NAMESPACE_ID = os.environ["CF_KV_NAMESPACE_ID"]
 CF_ACCOUNT_ID = os.environ["CF_ACCOUNT_ID"]
 
+MIME_TYPES_MAP = {
+    "aac": "audio/aac",
+    "css": "text/css",
+    "csv": "text/csv",
+    "gz": "application/gzip",
+    "gif": "image/gif",
+    "html": "text/html",
+    "ico": "image/vnd.microsoft.icon",
+    "ics": "text/calendar",
+    "jpeg": "image/jpeg",
+    "jpg": "image/jpeg",
+    "js": "text/javascript",
+    "json": "application/json",
+    "mpeg": "video/mpeg",
+    "png": "image/png",
+    "pdf": "application/pdf",
+    "rtf": "application/rtf",
+    "sh": "application/x-sh",
+    "svg": "image/svg+xml",
+    "tar": "application/x-tar",
+    "tif": "image/tiff",
+    "tiff": "image/tiff",
+    "txt": "text/plain",
+    "wav": "audio/wav",
+    "weba": "audio/webm",
+    "webm": "video/webm",
+    "webp": "image/webp",
+    "xhtml": "application/xhtml+xml",
+    "xml": "application/xml",
+    "zip": "application/zip",
+}
+
 app = Flask(__name__)
 
 
@@ -85,7 +117,10 @@ def upload_to_kv(data):
 
 
 def build_kv_metadata(object_name):
-    return {"cacheControl": get_cache_control(object_name)}
+    return {
+        "cacheControl": get_cache_control(object_name),
+        "mimeType": get_mime_type(object_name),
+    }
 
 
 def get_cache_control(object_name):
@@ -102,3 +137,10 @@ def get_cache_control(object_name):
     cache_control = f"public, max-age={seconds}"
     print(f"Calculated cache-control: {cache_control}")
     return cache_control
+
+
+def get_mime_type(object_name):
+    extension = object_name.split(".").pop()
+    if extension in MIME_TYPES_MAP.keys():
+        return MIME_TYPES_MAP[extension]
+    return "text/plain"
