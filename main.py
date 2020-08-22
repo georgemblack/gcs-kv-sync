@@ -135,7 +135,6 @@ def get_cache_control(object_name):
         seconds = "900"
 
     cache_control = f"public, max-age={seconds}"
-    print(f"Calculated cache-control: {cache_control}")
     return cache_control
 
 
