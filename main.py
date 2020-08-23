@@ -94,8 +94,8 @@ def index():
     try:
         if event_type == "OBJECT_FINALIZE":
             handle_object_finalize(data)
-        # if event_type == "OBJECT_DELETE":
-        #     handle_object_delete(data)
+        if event_type == "OBJECT_DELETE":
+            handle_object_delete(data)
         sys.stdout.flush()
 
     except Exception as e:
@@ -141,9 +141,10 @@ def handle_object_delete(data):
     if blob.exists():
         print(f"Ignoring OBJECT_DELETE event for {data['name']}")
         return
+    else:
+        print(f"Removing object from KV: {data['name']}")
 
-    print(f"Removing object from KV: {data['name']}")
-
+    # print(f"Removing object from KV: {data['name']}")
     # kv_key = f"{data['bucket']}/{data['name']}"
     # url = f"{CF_API_ENDPOINT}/accounts/{CF_ACCOUNT_ID}/storage/kv/namespaces/{CF_KV_NAMESPACE_ID}/values/{kv_key}"
     # headers = {"Authorization": f"Bearer {CF_API_TOKEN}"}
