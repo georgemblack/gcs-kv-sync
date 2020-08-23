@@ -15,8 +15,12 @@ CF_ACCOUNT_ID = os.environ["CF_ACCOUNT_ID"]
 
 MIME_TYPES_MAP = {
     "aac": "audio/aac",
+    "arc": "application/x-freearc",
+    "avi": "video/x-msvideo",
     "css": "text/css",
     "csv": "text/csv",
+    "doc": "application/msword",
+    "docx": "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
     "gz": "application/gzip",
     "gif": "image/gif",
     "html": "text/html",
@@ -26,9 +30,12 @@ MIME_TYPES_MAP = {
     "jpg": "image/jpeg",
     "js": "text/javascript",
     "json": "application/json",
+    "mid": "audio/x-midi",
+    "midi": "audio/x-midi",
     "mpeg": "video/mpeg",
     "png": "image/png",
     "pdf": "application/pdf",
+    "rar": "application/vnd.rar",
     "rtf": "application/rtf",
     "sh": "application/x-sh",
     "svg": "image/svg+xml",
@@ -144,4 +151,4 @@ def get_mime_type(object_name):
     extension = object_name.split(".").pop()
     if extension in MIME_TYPES_MAP.keys():
         return MIME_TYPES_MAP[extension]
-    return "text/plain"
+    return "application/octet-stream"
