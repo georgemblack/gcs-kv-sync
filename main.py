@@ -144,14 +144,14 @@ def handle_object_delete(data):
 
     print(f"Removing object from KV: {data['name']}")
 
-    kv_key = f"{data['bucket']}/{data['name']}"
-    url = f"{CF_API_ENDPOINT}/accounts/{CF_ACCOUNT_ID}/storage/kv/namespaces/{CF_KV_NAMESPACE_ID}/values/{kv_key}"
-    headers = {"Authorization": f"Bearer {CF_API_TOKEN}"}
+    # kv_key = f"{data['bucket']}/{data['name']}"
+    # url = f"{CF_API_ENDPOINT}/accounts/{CF_ACCOUNT_ID}/storage/kv/namespaces/{CF_KV_NAMESPACE_ID}/values/{kv_key}"
+    # headers = {"Authorization": f"Bearer {CF_API_TOKEN}"}
 
-    response = requests.delete(url, headers=headers)
-    response.raise_for_status()
-    response_body = response.json()
-    print(f"CF API response: {response_body}")
+    # response = requests.delete(url, headers=headers)
+    # response.raise_for_status()
+    # response_body = response.json()
+    # print(f"CF API response: {response_body}")
 
 
 def build_kv_metadata(object_name):
