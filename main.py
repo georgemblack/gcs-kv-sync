@@ -94,8 +94,8 @@ def index():
     try:
         if event_type == "OBJECT_FINALIZE":
             handle_object_finalize(data)
-        if event_type == "OBJECT_DELETE":
-            handle_object_delete(data)
+        # if event_type == "OBJECT_DELETE":
+        #     handle_object_delete(data)
         sys.stdout.flush()
 
     except Exception as e:
