@@ -77,7 +77,7 @@ def index():
         return "Bad Request: Invalid Pub/Sub message format", 400
 
     event_type = message["attributes"]["eventType"]
-    if event_type != "OBJECT_FINALIZE":
+    if event_type not in ["OBJECT_FINALIZE", "OBJECT_DELETE"]:
         print(f"Ignoring unrelated Cloud Storage event: {event_type}")
         return "No action taken", 200
 
@@ -92,7 +92,10 @@ def index():
         return f"Bad Request: Expected name/bucket in notification", 400
 
     try:
-        upload_to_kv(data)
+        if event_type == "OBJECT_FINALIZE":
+            handle_object_finalize(data)
+        if event_type == "OBJECT_DELETE":
+            handle_object_delete(data)
         sys.stdout.flush()
 
     except Exception as e:
@@ -102,12 +105,16 @@ def index():
     return ("Uploaded to Workers KV", 200)
 
 
-def upload_to_kv(data):
+def handle_object_finalize(data):
+    """
+    Upload to Cloudflare Workers KV.
+    """
     storage_client = storage.Client()
     bucket = storage_client.get_bucket(data["bucket"])
     blob = bucket.get_blob(data["name"])
 
-    # build kv req
+    print(f"Adding object to KV: {data['name']}")
+
     kv_key = f"{data['bucket']}/{data['name']}"
     kv_value = blob.download_as_string()
     kv_metadata = build_kv_metadata(data["name"])
@@ -116,8 +123,32 @@ def upload_to_kv(data):
     headers = {"Authorization": f"Bearer {CF_API_TOKEN}"}
     payload = {"value": kv_value, "metadata": json.dumps(kv_metadata)}
 
-    # upload to kv
     response = requests.put(url, headers=headers, files=payload)
+    response.raise_for_status()
+    response_body = response.json()
+    print(f"CF API response: {response_body}")
+
+
+def handle_object_delete(data):
+    """
+    Delete from Cloudflare Workers KV if object was deleted and not overwritten.
+    """
+    storage_client = storage.Client()
+    bucket = storage_client.get_bucket(data["bucket"])
+    blob = bucket.get_blob(data["name"])
+
+    # if object still exists, it was overwritten and should not be deleted from KV
+    if blob.exists():
+        print(f"Ignoring OBJECT_DELETE event for {data['name']}")
+        return
+
+    print(f"Removing object from KV: {data['name']}")
+
+    kv_key = f"{data['bucket']}/{data['name']}"
+    url = f"{CF_API_ENDPOINT}/accounts/{CF_ACCOUNT_ID}/storage/kv/namespaces/{CF_KV_NAMESPACE_ID}/values/{kv_key}"
+    headers = {"Authorization": f"Bearer {CF_API_TOKEN}"}
+
+    response = requests.delete(url, headers=headers)
     response.raise_for_status()
     response_body = response.json()
     print(f"CF API response: {response_body}")
