@@ -137,12 +137,14 @@ def handle_object_delete(data):
     bucket = storage_client.get_bucket(data["bucket"])
     blob = bucket.get_blob(data["name"])
 
+    print(f"Got object delete for: {data["name"]}")
+
     # if object still exists, it was overwritten and should not be deleted from KV
-    if blob.exists():
-        print(f"Ignoring OBJECT_DELETE event for {data['name']}")
-        return
-    else:
-        print(f"Removing object from KV: {data['name']}")
+    # if blob.exists():
+    #     print(f"Ignoring OBJECT_DELETE event for {data['name']}")
+    #     return
+    # else:
+    #     print(f"Removing object from KV: {data['name']}")
 
     # print(f"Removing object from KV: {data['name']}")
     # kv_key = f"{data['bucket']}/{data['name']}"
