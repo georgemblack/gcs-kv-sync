@@ -9,7 +9,6 @@ from google.cloud import storage
 CF_API_ENDPOINT = "https://api.cloudflare.com/client/v4"
 CF_API_EMAIL = os.environ["CF_API_EMAIL"]
 CF_API_TOKEN = os.environ["CF_API_TOKEN"]
-
 CF_KV_NAMESPACE_ID = os.environ["CF_KV_NAMESPACE_ID"]
 CF_ACCOUNT_ID = os.environ["CF_ACCOUNT_ID"]
 
@@ -53,6 +52,7 @@ MIME_TYPES_MAP = {
 }
 
 app = Flask(__name__)
+storage_client = storage.Client()
 
 
 @app.route("/", methods=["POST"])
@@ -109,7 +109,6 @@ def handle_object_finalize(data):
     """
     Upload to Cloudflare Workers KV.
     """
-    storage_client = storage.Client()
     bucket = storage_client.get_bucket(data["bucket"])
     blob = bucket.get_blob(data["name"])
 
@@ -133,34 +132,24 @@ def handle_object_delete(data):
     """
     Delete from Cloudflare Workers KV if object was deleted and not overwritten.
     """
-    storage_client = storage.Client()
-    bucket = storage_client.get_bucket(data["bucket"])
-    blob = bucket.get_blob(data["name"])
-
-    print(f"Got object delete for: {data['name']}")
-
-    try:
-        print(blob.exists())
-    except Exception as e:
-        print(e)
-        return
 
     # if object still exists, it was overwritten and should not be deleted from KV
-    # if blob.exists():
-    #     print(f"Ignoring OBJECT_DELETE event for {data['name']}")
-    #     return
-    # else:
-    #     print(f"Removing object from KV: {data['name']}")
+    bucket = storage_client.get_bucket(data["bucket"])
+    blob = bucket.get_blob(data["name"])
+    if blob:
+        print(f"Ignoring OBJECT_DELETE event for {data['name']}")
+        return
 
-    # print(f"Removing object from KV: {data['name']}")
-    # kv_key = f"{data['bucket']}/{data['name']}"
-    # url = f"{CF_API_ENDPOINT}/accounts/{CF_ACCOUNT_ID}/storage/kv/namespaces/{CF_KV_NAMESPACE_ID}/values/{kv_key}"
-    # headers = {"Authorization": f"Bearer {CF_API_TOKEN}"}
+    print(f"Removing object from KV: {data['name']}")
 
-    # response = requests.delete(url, headers=headers)
-    # response.raise_for_status()
-    # response_body = response.json()
-    # print(f"CF API response: {response_body}")
+    kv_key = f"{data['bucket']}/{data['name']}"
+    url = f"{CF_API_ENDPOINT}/accounts/{CF_ACCOUNT_ID}/storage/kv/namespaces/{CF_KV_NAMESPACE_ID}/values/{kv_key}"
+    headers = {"Authorization": f"Bearer {CF_API_TOKEN}"}
+
+    response = requests.delete(url, headers=headers)
+    response.raise_for_status()
+    response_body = response.json()
+    print(f"CF API response: {response_body}")
 
 
 def build_kv_metadata(object_name):
