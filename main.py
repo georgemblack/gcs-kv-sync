@@ -139,6 +139,12 @@ def handle_object_delete(data):
 
     print(f"Got object delete for: {data['name']}")
 
+    try:
+        print(blob.exists())
+    except Exception as e:
+        print(e)
+        return
+
     # if object still exists, it was overwritten and should not be deleted from KV
     # if blob.exists():
     #     print(f"Ignoring OBJECT_DELETE event for {data['name']}")
