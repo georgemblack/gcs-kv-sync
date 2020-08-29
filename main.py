@@ -21,6 +21,7 @@ MIME_TYPES_MAP = {
     "doc": "application/msword",
     "docx": "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
     "gz": "application/gzip",
+    "gpx": "application/gpx+xml",
     "gif": "image/gif",
     "html": "text/html",
     "ico": "image/vnd.microsoft.icon",
