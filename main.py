@@ -6,6 +6,8 @@ import requests
 from flask import Flask, request
 from google.cloud import storage
 
+SOURCE_BUCKETS = ["george.black", "media.george.black"]
+
 CF_API_ENDPOINT = "https://api.cloudflare.com/client/v4"
 CF_API_EMAIL = os.environ["CF_API_EMAIL"]
 CF_API_TOKEN = os.environ["CF_API_TOKEN"]
@@ -91,6 +93,10 @@ def index():
     if not data["name"] or not data["bucket"]:
         print(f"Error: Expected name/bucket in notification")
         return f"Bad Request: Expected name/bucket in notification", 400
+        
+    if data["bucket"] not in SOURCE_BUCKETS:
+        print(f"Ignoring event from bucket {data['bucket']}")
+        return
 
     try:
         if event_type == "OBJECT_FINALIZE":
