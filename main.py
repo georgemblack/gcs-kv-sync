@@ -96,7 +96,7 @@ def index():
         
     if data["bucket"] not in SOURCE_BUCKETS:
         print(f"Ignoring event from bucket {data['bucket']}")
-        return
+        return ("", 200)
 
     try:
         if event_type == "OBJECT_FINALIZE":
