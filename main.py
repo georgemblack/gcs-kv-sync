@@ -45,6 +45,7 @@ MIME_TYPES_MAP = {
     "tif": "image/tiff",
     "tiff": "image/tiff",
     "txt": "text/plain",
+    "usdz": "model/usd",
     "wav": "audio/wav",
     "weba": "audio/webm",
     "webm": "video/webm",
@@ -81,8 +82,8 @@ def index():
 
     event_type = message["attributes"]["eventType"]
     if event_type not in ["OBJECT_FINALIZE", "OBJECT_DELETE"]:
-        print(f"Ignoring unrelated Cloud Storage event: {event_type}")
-        return "No action taken", 200
+        print(f"Ignoring unrelated Cloud Storage event type: {event_type}")
+        return "No action required", 200
 
     try:
         data = json.loads(base64.b64decode(message["data"]).decode())
