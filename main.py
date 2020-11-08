@@ -170,15 +170,15 @@ def build_kv_metadata(object_name):
 
 
 def get_cache_control(object_name):
-    seconds = "3600"
+    seconds = "900"
     extension = object_name.split(".").pop()
 
-    if extension in ["jpg", "jpeg", "png", "webp", "mov", "ico", "svg", "webmanifest"]:
+    if extension in ["jpg", "jpeg", "png", "webp", "avif", "mov", "ico", "svg", "webmanifest"]:
         seconds = "2592000"  # 30 days
     elif extension in ["js", "css"]:
         seconds = "172800"  # 2 days
     elif extension in ["xml", "json"]:
-        seconds = "900"
+        seconds = "300"
 
     cache_control = f"public, max-age={seconds}"
     return cache_control
