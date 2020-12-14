@@ -163,28 +163,27 @@ def handle_object_delete(data):
 def build_kv_metadata(object_name):
     metadata = {
         "cacheControl": get_cache_control(object_name),
-        "mimeType": get_mime_type(object_name),
+        "mimeType": get_content_type(object_name),
     }
     print(f"Metadata for {object_name}: {metadata}")
     return metadata
 
 
 def get_cache_control(object_name):
-    seconds = "900"
+    seconds = "2592000"
     extension = object_name.split(".").pop()
 
-    if extension in ["jpg", "jpeg", "png", "webp", "avif", "mov", "ico", "svg", "webmanifest"]:
-        seconds = "2592000"  # 30 days
+    if extension in ["html", "xml", "json", "txt"]:
+        seconds = "900"
     elif extension in ["js", "css"]:
-        seconds = "172800"  # 2 days
-    elif extension in ["xml", "json"]:
-        seconds = "300"
+        seconds = "172800"
 
     cache_control = f"public, max-age={seconds}"
+    print(f"Calculated cache-control: {cache_control}")
     return cache_control
 
 
-def get_mime_type(object_name):
+def get_content_type(object_name):
     extension = object_name.split(".").pop()
     if extension in MIME_TYPES_MAP.keys():
         return MIME_TYPES_MAP[extension]
