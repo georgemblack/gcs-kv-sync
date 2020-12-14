@@ -94,7 +94,7 @@ def index():
     if not data["name"] or not data["bucket"]:
         print(f"Error: Expected name/bucket in notification")
         return f"Bad Request: Expected name/bucket in notification", 400
-        
+
     if data["bucket"] not in SOURCE_BUCKETS:
         print(f"Ignoring event from bucket {data['bucket']}")
         return ("", 200)
