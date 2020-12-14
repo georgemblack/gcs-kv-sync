@@ -80,9 +80,14 @@ def index():
         print("Error: Invalid Pub/Sub message format")
         return "Bad Request: Invalid Pub/Sub message format", 400
 
-    event_type = message["attributes"]["eventType"]
+    attributes = message["attributes"]
+    event_type = attributes["eventType"]
     if event_type not in ["OBJECT_FINALIZE", "OBJECT_DELETE"]:
         print(f"Ignoring unrelated Cloud Storage event type: {event_type}")
+        return "No action required", 200
+
+    if event_type == "OBJECT_DELETE" and "overwrittenByGeneration" in attributes.keys():
+        print(f"Ignoring OBJECT_DELETE event for overwritten object")
         return "No action required", 200
 
     try:
@@ -138,16 +143,8 @@ def handle_object_finalize(data):
 
 def handle_object_delete(data):
     """
-    Delete from Cloudflare Workers KV if object was deleted and not overwritten.
+    Delete from Cloudflare Workers KV.
     """
-
-    # if object still exists, it was overwritten and should not be deleted from KV
-    bucket = storage_client.get_bucket(data["bucket"])
-    blob = bucket.get_blob(data["name"])
-    if blob:
-        print(f"Ignoring OBJECT_DELETE event for {data['name']}")
-        return
-
     print(f"Removing object from KV: {data['name']}")
 
     kv_key = f"{data['bucket']}/{data['name']}"
