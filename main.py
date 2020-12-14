@@ -175,9 +175,7 @@ def get_cache_control(object_name):
     elif extension in ["js", "css"]:
         seconds = "172800"
 
-    cache_control = f"public, max-age={seconds}"
-    print(f"Calculated cache-control: {cache_control}")
-    return cache_control
+    return f"public, max-age={seconds}"
 
 
 def get_content_type(object_name):
