@@ -31,7 +31,7 @@ MIME_TYPES_MAP = {
     "jpeg": "image/jpeg",
     "jpg": "image/jpeg",
     "js": "text/javascript",
-    "json": "application/json",
+    "json": "application/json; charset=utf-8",
     "mid": "audio/x-midi",
     "midi": "audio/x-midi",
     "mpeg": "video/mpeg",
