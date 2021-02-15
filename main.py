@@ -18,6 +18,7 @@ MIME_TYPES_MAP = {
     "aac": "audio/aac",
     "arc": "application/x-freearc",
     "avi": "video/x-msvideo",
+    "avif": "image/avif",
     "css": "text/css",
     "csv": "text/csv",
     "doc": "application/msword",
